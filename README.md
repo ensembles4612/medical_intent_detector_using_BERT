@@ -2,13 +2,13 @@
 
 ## Project Highlights
 
+In this tutorial, we will use BERT to train a text classifier. Specifically, we will take the pre-trained BERT model, add an untraine-----------------------
+
 ## Project Object
 
 To build a model using BERT that can predict what medical symptoms based on text messages. For example, the model can predict the medical intent is 'Neck pain' after parsing the text message 'There is a tingling sensation in my neck.'	
 
-
-
-## Code and references
+## Code and Resources
 
 * **Dataset Used**: from Kaggle containing texts for common medical intents. https://www.kaggle.com/paultimothymooney/medical-speech-transcription-and-intent
 * **Language**: Python 3
@@ -16,13 +16,71 @@ To build a model using BERT that can predict what medical symptoms based on text
 * **BERT Paper**: https://arxiv.org/abs/1810.04805
 * **Transformers Docs**: https://huggingface.co/transformers/
 * **Transformers Repo**: https://github.com/huggingface/transformers
-* **Packages Used**: tensorflow, torch, numpy, pandas , seaborn, matplotlib, google.colab, sklearn, transformers
+* **Packages Used**: tensorflow, torch, numpy, pandas , seaborn, matplotlib, google.colab, sklearn, transformers, time, datetime, random, os
 * **Colab GPU Setup**: Colab 🡒 New Notebook 🡒 Edit 🡒 Notebook Settings 🡒 Hardware accelerator 🡒 (GPU)
 
 
-## What Is BERT
+## What is BERT------------------------
+
+Transformers (formerly known as pytorch-transformers and pytorch-pretrained-bert) provides general-purpose architectures (BERT, GPT-2, RoBERTa, XLM, DistilBert, XLNet…) for Natural Language Understanding (NLU) and Natural Language Generation (NLG) with over 32+ pretrained models in 100+ languages and deep interoperability between TensorFlow 2.0 and PyTorch.
+
 The BERT model was proposed in BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding by Jacob Devlin, Ming-Wei Chang, Kenton Lee and Kristina Toutanova. It’s a bidirectional transformer pretrained using a combination of masked language modeling objective and next sentence prediction on a large corpus comprising the Toronto Book Corpus and Wikipedia.
 
-## Model Building
+Quicker Development
+
+First, the pre-trained BERT model weights already encode a lot of information about our language. As a result, it takes much less time to train our fine-tuned model - it is as if we have already trained the bottom layers of our network extensively and only need to gently tune them while using their output as features for our classification task. In fact, the authors recommend only 2-4 epochs of training for fine-tuning BERT on a specific NLP task (compared to the hundreds of GPU hours needed to train the original BERT model or a LSTM from scratch!).
+Less Data
+
+In addition and perhaps just as important, because of the pre-trained weights this method allows us to fine-tune our task on a much smaller dataset than would be required in a model that is built from scratch. A major drawback of NLP models built from scratch is that we often need a prohibitively large dataset in order to train our network to reasonable accuracy, meaning a lot of time and energy had to be put into dataset creation. By fine-tuning BERT, we are now able to get away with training a model to good performance on a much smaller amount of training data.
+Better Results
+
+Finally, this simple fine-tuning procedure (typically adding one fully-connected layer on top of BERT and training for a few epochs) was shown to achieve state of the art results with minimal task-specific adjustments for a wide variety of tasks: classification, language inference, semantic similarity, question answering, etc. Rather than implementing custom and sometimes-obscure architetures shown to work well on a specific task, simply fine-tuning BERT is shown to be a better (or at least equal) alternative.
+
+## Dataset preparation
+
+* **Dataset:** The dataset contains 6661 examples. I used 2 columns, "phrase" and "prompt" for modeling. There are 25 prompts (intents). 
+* **Train, validation and test sets split:** I split data to train(70%), validation(10%) and testset (20%) stratified by the variable "intent". After stratification, data for each intent will balanced and data for each set will be proportional to 70%, 10% and 20%. That is crucial for training and testing purposes.
+* **Tokenization and input formatting**: I Prepare the input data to the correct format before training as follows:
+  * tokenizing all sentences
+  * padding and truncating all sentences to the same length.
+  * Creating the attention masks which explicitly differentiate real tokens from [PAD] tokens. 0 or 1.
+  * encoding the label "intent" to numbers. 25 intents to 25 numbers.
+  * creating DataLoaders for our training, validation and test sets
+  
+## Model building (BERT Transfer Learning)
+
+I used BertForSequenceClassification, a BERT model with an added single linear layer on top for classification. As we feed input data, the entire pre-trained BERT model and the additional untrained classification layer is trained on our specific task.
+
+**Model training:** After adjusting all the hyperparameters with different values, I decided to use the hyperparameters below and ran 4 epochs for the training data. It took about 34s for each epoch. Training set accuracy increased from 37% (at 1st epoch), 93% (at 2nd epoch), 99% (at 3rd epoch), to 100% (at 4th epoch).  
+```
+TRAIN_BATCH_SIZE =32
+VALID_BATCH_SIZE = 64
+EPSILON = 1e-08
+EPOCHS = 4
+LEARNING_RATE = 2e-5
+SEED = 1215
+```
+
+Also, I did the following before training the model:
+* choosing pretained base(relatively small) BERT mdoel for sequence classification
+```
+model = BertForSequenceClassification.from_pretrained('bert-base-uncased', num_labels = 25)
+```
+* using AdamW optimizer and creating the learning rate scheduler
+* creating a function to calcuate the accuracy of the model
+
+## Model Performance
+
+* Validation set accuracy: 99.40%
+* Test set accuracy: 99.40%
+
+## Preparing for Deployment
+
+* **Saving the model, tokenizer and labels:** I saved the BERT model with 99.40% test set accuracy along with the tokenizer and labels for medical intents used when developing the model.
+* **Creating medical intent detector function and test with new sentence:**
+  * Loaded the saved model, tokenizer and labels 
+  * Created a medical_symptom_detector function with the loaded model, tokenizer and labels, which helps predict the medical intent of a medical text message. 
+  * tested an unseen example on the detector 
+
 
 
