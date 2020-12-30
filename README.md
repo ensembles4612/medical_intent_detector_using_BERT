@@ -28,18 +28,18 @@ The BERT model was proposed in BERT: Pre-training of Deep Bidirectional Transfor
 * Less data needed: the pre-trained weights allow us to fine-tune a specific task on a much smaller dataset than building from scratch. 
 * Better results: the simple fine-tuning procedure (typically adding one fully-connected layer on top of BERT and training for a few epochs) was shown to achieve state of the art results with minimal task-specific adjustments for a wide variety of tasks: classification, language inference, semantic similarity, question answering, etc. 
 
-## Dataset preparation
+## Dataset Preparation
 
 * **Dataset:** The dataset contains 6661 examples. I used 2 columns, "phrase" and "prompt" for modeling. There are 25 prompts (intents). 
 * **Train, validation and test sets split:** I split data to train(70%), validation(10%) and testset (20%) stratified by the variable "intent". After stratification, data for each intent will balanced and data for each set will be proportional to 70%, 10% and 20%. That is crucial for training and testing purposes.
-* **Tokenization and input formatting**: I Prepare the input data to the correct format before training as follows:
+* **Tokenization and input formatting**: I Prepared the input data to the correct format before training as follows:
   * tokenizing all sentences
   * padding and truncating all sentences to the same length.
   * Creating the attention masks which explicitly differentiate real tokens from [PAD] tokens. 0 or 1.
   * encoding the label "intent" to numbers. 25 intents to 25 numbers.
   * creating DataLoaders for our training, validation and test sets
   
-## Model building (BERT Transfer Learning)
+## Model Building (BERT Transfer Learning)
 
 I used BertForSequenceClassification, a BERT model with an added single linear layer on top for classification. As we feed input data, the entire pre-trained BERT model and the additional untrained classification layer is trained on our specific task.
 
