@@ -6,7 +6,7 @@ I built a multi-class classifier using BERT from Transformers that can identify 
 
 As for the model building process, I built the classifier with transfer learning from pre-trained BERT model, which was already trained on large corpus. For our specific task, the pre-trained BERT model was added an layer on top for classifying descriptive text to 25 intents (categories). When training started, I fine-tuned the entire pre-trained BERT model and the additional untrained classification layer. After 4 epochs of fine-tuning the model on thousands of text messages with a good selection of hyperparameters, I obtained 99.40% accuracy in the test set. See code [here](https://github.com/ensembles4612/medical_intent_detector_using_BERT/blob/master/medical_intent_detector_Using_BERT.ipynb).
 
-## Code and Resources
+## Resources
 
 * **Dataset Used**: from Kaggle containing texts for common medical intents. https://www.kaggle.com/paultimothymooney/medical-speech-transcription-and-intent
 * **Language**: Python 3 and PyTorch
